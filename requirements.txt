@@ -1,0 +1,37 @@
+# ---------- 核心 ----------
+langgraph>=0.2
+langchain-core>=0.3
+langchain-openai>=0.2
+pydantic>=2.0
+pyyaml>=6.0
+python-dotenv>=1.0
+
+# ---------- 存储 ----------
+qdrant-client>=1.9          # 本地嵌入式模式，无需 Docker
+sqlalchemy>=2.0
+# 数据库驱动按需另装：生产切换外部数据库、或启用缓存式短期记忆时，
+# 参考docker-compose.yml与config.yaml中的注释安装对应客户端库（默认均不启用，SQLite+内存兜底）
+# 缓存客户端装 4.x（名称与安装命令见 启动流程.md §5；8.x 的 RESP3 握手与 5.0 服务端不兼容。
+# 注意：不要把缓存客户端写进本清单——发布预检会误判为需要外部服务，发布沙箱用内存兜底即可）
+
+# ---------- 工具 ----------
+sympy>=1.12                 # calculator / 判分等价性
+# paddleocr                 # 手写体识别（可选）
+# pypdf                     # PDF 文本层（可选）
+
+# ---------- Embedding（可选，缺则自动回退零依赖哈希向量）----------
+# 需先 python scripts/download_embedding_model.py 从 ModelScope 拉取模型
+# 注意：torch 官方源不含 CPU 版索引，必须单独安装（直接写进行会报错）：
+#   pip install --index-url https://download.pytorch.org/whl/cpu torch
+# torch>=2.0
+transformers>=4.40
+
+# ---------- 服务化 ----------
+fastapi>=0.110
+uvicorn[standard]>=0.27
+python-multipart>=0.0.9     # 文件上传必需
+
+# ---------- 数据/测试 ----------
+tqdm
+huggingface_hub
+pytest>=8.0

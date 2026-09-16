@@ -1,0 +1,46 @@
+# ④ Redis 短期记忆（可选组件）
+# 应用默认不启用（config.yaml redis.enabled=false，内存兜底零依赖可跑）。
+# 如需启用，取消下面 redis 块的注释即可：
+# 只起 Redis：docker compose up -d redis
+#   然后在 config.yaml 把 redis.enabled 改为 true
+# 连应用一起起：docker compose --profile full up -d   （首次需先 docker build -t math-agent .）
+# 注：redis 块默认注释——发布为在线应用时，沙箱只提供单 HTTP 端口，不允许声明外部服务容器。
+#services:
+#  redis:
+#    image: redis:7-alpine
+#    container_name: math-agent-redis
+#    ports:
+#      - "6379:6379"
+#    volumes:
+#      - redis-data:/data
+#    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb",
+#              "--maxmemory-policy", "allkeys-lru"]
+#    healthcheck:
+#      test: ["CMD", "redis-cli", "ping"]
+#      interval: 5s
+#      timeout: 3s
+#      retries: 5
+#    restart: unless-stopped
+
+services:
+  # 应用本体（profile full，默认不启动，避免改变原有用法）
+  app:
+    image: math-agent
+    container_name: math-agent-app
+    profiles: ["full"]
+    ports:
+      - "8787:8787"
+    env_file:
+      - path: .env
+        required: false          # 无 .env 时自动降级离线规则模式
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8787
+    volumes:
+      - ./data:/app/data         # SQLite 题库 / 答题记录 / Qdrant 向量库
+      - ./models:/app/models     # BGE embedding 模型（可选）
+      - ./config.yaml:/app/config.yaml:ro
+    restart: unless-stopped
+
+volumes:
+  redis-data:

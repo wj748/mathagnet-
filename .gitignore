@@ -1,0 +1,30 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+*.egg-info/
+.pytest_cache/
+.idea/
+
+# 密钥与日志
+data/.secret_key
+*.log
+
+# 测试残留
+/test.json
+/test2.json
+
+# 数据与模型（体积大，按需重新生成）
+data/raw/
+data/qdrant/
+data/*.db
+data/uploads/
+data/cleanup_backup_*/
+models/
+*.bin
+*.safetensors
+
+# 系统
+.DS_Store
+Thumbs.db

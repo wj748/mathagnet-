@@ -1,0 +1,96 @@
+app:
+  name: 初中数学辅导 Agent
+  version: v1.0
+  language: zh-CN
+
+llm:
+  provider: auto            # auto | openai_compatible | mock
+  api_key_env: GLM_API_KEY
+  base_url_env: GLM_BASE_URL
+  base_url_default: https://open.bigmodel.cn/api/paas/v4/
+  model_env: GLM_MODEL
+  model_default: glm-4-flash
+  vision_model_default: glm-4v-flash   # ② OCR 手写识别兜底（可用 GLM_VISION_MODEL 覆盖）
+  temperature: 0.2
+  max_tokens: 2048
+  timeout: 60
+
+embedding:
+  backend: auto             # auto | bge | hashing
+  model_id: BAAI/bge-small-zh-v1.5
+  model_dir: models/bge-small-zh-v1.5
+  max_length: 512
+  batch_size: 32
+  device: cpu
+
+vectorstore:
+  backend: qdrant_local     # qdrant_local | qdrant_server
+  path: data/qdrant
+  host: localhost
+  port: 6333
+  collection_knowledge: knowledge_base
+  collection_memory: user_long_term_memory
+
+database:
+  url: sqlite:///data/math_agent.db   # 生产可换 mysql+pymysql://user:pwd@host/db
+
+redis:
+  enabled: false
+  url: redis://localhost:6379/0
+  session_ttl: 86400
+
+security:
+  require_token: false     # 生产/公网部署务必改为 true：无签名 token 的请求一律 401
+  cors_origins: ["http://127.0.0.1:8787", "http://localhost:8787"]
+  max_upload_mb: 10        # 上传文件大小上限
+  agent_ttl: 1800          # 空闲 Agent 淘汰秒数（compressor 已持久化，可安全重建）
+  agent_max: 100           # Agent 池容量上限（LRU 驱逐）
+
+concurrency:               # 多用户并发治理（concurrency.py，全部进程内硬约束）
+  per_user_qps: 3          # 单用户每秒最大请求数（滑动窗口，超限 429）
+  max_agent_tasks: 8       # 全局同时执行的智能体任务上限（保护下游 LLM API 配额）
+  queue_wait_s: 15         # 全局并发满时的排队等待秒数，超时降级 503
+  max_inflight: 32         # 全局在途任务硬上限，超限立即 503（熔断防雪崩）
+  idempotency_ttl_s: 300   # 请求 ID 幂等缓存时长（秒）
+  idempotency_max: 500     # 幂等缓存条目上限（LRU 淘汰）
+
+graph:
+  max_react_loops: 8
+  info_gain_threshold: 0.80
+
+toolguard:                   # 工具链失败治理（toolguard.py，进程内硬约束）
+  max_retries: 2             # 瞬时故障重试上限（指数退避 0.4s/0.8s，仅当前步骤）
+  backoff_base_s: 0.4        # 退避基数：第 i 次重试等待 base*2^i + 抖动
+  default_timeout_s: 30      # 单工具默认超时（线程池隔离，卡死不拖垮整条链）
+  circuit_window: 20         # 熔断滑动窗口大小
+  circuit_min_volume: 5      # 窗口内至少这么多次调用才统计失败率
+  circuit_fail_rate: 0.8     # 失败率阈值，达到即熔断打开
+  circuit_cooldown_s: 30     # 熔断冷却秒数，过后半开探测
+  max_replans: 2             # Agent 重规划轮次上限（防死循环，超出降级出部分结果）
+  ledger_ttl_s: 3600         # 步骤台账保留时长（task_id/step_id，断点续跑依据）
+  fallback_tools:            # 同能力备选工具映射（重规划时规则层强制换用）
+    search_knowledge: search_user_memory
+
+memory:
+  context_budget: 1600      # 压缩后对话上下文的字符预算（注入 prompt 的体量上限）
+  recent_turns: 6           # 近期原文保留的轮数（user+assistant 各算一轮）
+  max_summary_lines: 12     # 「此前要点」最多保留条数，超出按新旧淘汰
+  max_entities: 10          # 实体锚（板块/概念/题目ID）展示上限
+  max_turns_kept: 60        # 原始轮次内存上限，最老先淘汰
+  obs_window: 8             # short_term_memory.observations 保留条数
+  hist_full: 8              # tool_call_history 末尾保留完整记录条数
+  hist_compact_beyond: 24   # 历史超过该条数后，旧记录压缩为 name+args_hash+ok
+
+retrieval:
+  top_k: 5
+  score_threshold: 0.10
+
+chunking:
+  similarity_threshold: 0.55   # 语义分块：相邻句相似度低于该值即切分
+  max_chunk_chars: 900
+  min_chunk_chars: 12   # 仅用于合并"过短碎片"，过大会把语义切分结果又合并回去
+
+topics:
+  - 函数
+  - 二元一次方程
+  - 几何图像
