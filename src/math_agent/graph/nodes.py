@@ -286,7 +286,13 @@ def grading_node(state: MathAgentState) -> Dict[str, Any]:
     payload = state.get("ocr_payload") or {}
     if not payload:
         import re as _re
-        m = _re.search(r"([A-Za-z]:\\[^\s]+|\./[^\s]+|/[^\s]+\.(?:png|jpg|jpeg|pdf|txt))", text)
+        # 路径提取：兼容正/反斜杠与盘符（此前 D:/xxx.png 会被第三个分支吞掉盘符
+        # 变成 /xxx.png，相对路径被 OCR 白名单拒绝 → 上传批改永远失败）；
+        # 扩展名与 ocr.ALLOWED_OCR_EXT 对齐（补 bmp/webp/md）
+        _EXT = r"(?:png|jpe?g|bmp|webp|pdf|txt|md)"
+        m = _re.search(
+            rf"([A-Za-z]:[\/\\][^\s]+\.{_EXT}|[\/\\][^\s]+\.{_EXT}|\./[^\s]+\.{_EXT})",
+            text, _re.I)
         if not m:
             return {"response": ("📄 请把作业图片/PDF 的路径发给我（或先上传文件），"
                                  "例如：批改 D:\\homework\\week3.pdf"),
