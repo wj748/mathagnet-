@@ -19,6 +19,8 @@ data/.secret_key
 data/raw/
 data/qdrant/
 data/*.db
+data/*.db-shm
+data/*.db-wal
 data/uploads/
 data/cleanup_backup_*/
 models/
