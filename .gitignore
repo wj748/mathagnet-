@@ -28,3 +28,9 @@ models/
 # 系统
 .DS_Store
 Thumbs.db
+
+# 构建与部署产物（体积大，不进 git）
+dist/
+.workbuddy/deploy_staging/
+.workbuddy/tmp/
+node_modules/
