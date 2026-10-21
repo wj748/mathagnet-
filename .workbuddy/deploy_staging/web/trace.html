@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>调用链追踪 · 初中数学辅导 Agent</title>
+<style>
+  :root{
+    --bg:#f6f7fb; --panel:#ffffff; --border:#e4e7ee; --text:#1f2430;
+    --muted:#6b7280; --brand:#3b6ef5; --brand-soft:#eaf0ff;
+    --ok:#12a150; --err:#e5484d; --warn:#f5a524;
+    --soft-ok:#e7f7ee; --soft-err:#fdecec; --soft-warn:#fef6e7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+       font:15px/1.65 -apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 20px 40px}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .logo{width:40px;height:40px;border-radius:11px;background:var(--brand);
+        color:#fff;display:grid;place-items:center;font-weight:700;font-size:18px}
+  h1{font-size:19px;margin:0;font-weight:650}
+  .sub{color:var(--muted);font-size:13px}
+  .badge{margin-left:auto;font-size:12px;padding:4px 10px;border-radius:999px;
+         background:var(--brand-soft);color:var(--brand)}
+  a{color:var(--brand);text-decoration:none;font-size:13px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
+  .card .k{color:var(--muted);font-size:12px}
+  .card .v{font-size:22px;font-weight:650;margin-top:2px}
+  .card .v small{font-size:12px;font-weight:400;color:var(--muted);margin-left:3px}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:18px}
+  .panel h3{margin:0;padding:12px 16px;font-size:14px;border-bottom:1px solid var(--border);
+            display:flex;align-items:center;gap:10px}
+  .panel h3 .sp{margin-left:auto;display:flex;gap:8px;align-items:center;font-weight:400}
+  .body{padding:12px 16px}
+  .bars{display:flex;flex-wrap:wrap;gap:8px}
+  .bar{font-size:12px;padding:4px 10px;border-radius:999px;background:#f1f3f8;color:var(--muted)}
+  .bar b{color:var(--text)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:12px;background:#fbfcfe;position:sticky;top:0}
+  td.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break:break-all}
+  .tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;margin:1px 3px 1px 0}
+  .tag.intent{background:var(--brand-soft);color:var(--brand)}
+  .tag.learn{background:#f3ebff;color:#7c4dff}
+  .tag.ok{background:var(--soft-ok);color:var(--ok)}
+  .tag.err{background:var(--soft-err);color:var(--err)}
+  .tag.warn{background:var(--soft-warn);color:#b26a00}
+  .tag.node{background:#f1f3f8;color:var(--muted)}
+  .ms{font-weight:600}
+  .ms.slow{color:var(--err)}
+  .ms.mid{color:var(--warn)}
+  .empty{padding:30px;text-align:center;color:var(--muted);font-size:13px}
+  select,input[type=text]{padding:6px 9px;border:1px solid var(--border);border-radius:8px;
+                         background:#fff;font-size:13px}
+  button{padding:6px 14px;border:0;border-radius:8px;background:var(--brand);color:#fff;
+         font-size:13px;cursor:pointer}
+  button.ghost{background:#fff;color:var(--text);border:1px solid var(--border)}
+  .tblwrap{max-height:560px;overflow:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">T</div>
+    <div>
+      <h1>调用链追踪</h1>
+      <div class="sub">每轮对话的意图 / 节点 / 工具 / 耗时 · 脱敏存储于进程内环形缓冲</div>
+    </div>
+    <span class="badge" id="live">自动刷新</span>
+    <a href="/">← 回到对话</a>
+  </header>
+
+  <div class="cards" id="cards"></div>
+
+  <div class="panel">
+    <h3>分布统计
+      <span class="sp">
+        <select id="fIntent"><option value="">全部意图</option></select>
+        <input type="text" id="fUser" placeholder="按 user_id 过滤" size="16" />
+        <button class="ghost" id="btnLive">暂停刷新</button>
+        <button class="ghost" onclick="load()">刷新</button>
+      </span>
+    </h3>
+    <div class="body">
+      <div style="margin-bottom:8px;color:var(--muted);font-size:12px">意图分布</div>
+      <div class="bars" id="barsIntent"></div>
+      <div style="margin:12px 0 8px;color:var(--muted);font-size:12px">循环终止原因</div>
+      <div class="bars" id="barsStop"></div>
+      <div style="margin:12px 0 8px;color:var(--muted);font-size:12px">工具调用（按名称）</div>
+      <div class="bars" id="barsTool"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>最近调用链 <span class="sp" id="cnt"></span></h3>
+    <div class="tblwrap">
+      <table>
+        <thead><tr>
+          <th style="width:64px">时间</th><th style="width:110px">用户</th>
+          <th style="width:80px">意图</th><th style="width:200px">节点 / 工具</th>
+          <th style="width:62px">耗时</th><th>输入 → 回复</th>
+        </tr></thead>
+        <tbody id="rows"><tr><td colspan="6" class="empty">加载中…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+let TIMER = null;
+
+function fmt(n){ return n == null ? '-' : n; }
+
+function msClass(ms){ return ms >= 5000 ? 'slow' : (ms >= 1500 ? 'mid' : ''); }
+
+function renderBars(el, obj){
+  const entries = Object.entries(obj || {}).sort((a,b) => b[1]-a[1]);
+  el.innerHTML = entries.length
+    ? entries.map(([k,v]) => `<span class="bar">${k} <b>${v}</b></span>`).join('')
+    : '<span class="bar">暂无数据</span>';
+}
+
+function renderCards(s){
+  const cards = [
+    ['总轮次', s.turns, ''],
+    ['错误轮次', s.error_turns, s.error_rate + '%'],
+    ['P50 耗时', s.latency.p50, 'ms'],
+    ['P95 耗时', s.latency.p95, 'ms'],
+    ['工具调用', s.tool_calls, s.tool_error_rate + '% 错误'],
+    ['工具拦截', s.blocked_tools, '次防重'],
+  ];
+  document.getElementById('cards').innerHTML = cards.map(([k,v,u]) =>
+    `<div class="card"><div class="k">${k}</div><div class="v">${fmt(v)}<small>${u||''}</small></div></div>`
+  ).join('');
+}
+
+function renderRows(items){
+  const tb = document.getElementById('rows');
+  if(!items.length){ tb.innerHTML = '<tr><td colspan="6" class="empty">还没有调用记录，去对话页发一条消息吧</td></tr>'; return; }
+  tb.innerHTML = items.map(t => {
+    const tools = (t.tools||[]).map(c => {
+      const cls = c.blocked ? 'warn' : (c.ok ? 'ok' : 'err');
+      const label = c.blocked ? '拦截' : (c.ok ? 'ok' : 'err');
+      return `<span class="tag ${cls}">${c.name}·${label}</span>`;
+    }).join('');
+    const nodes = (t.nodes||[]).slice(-4).map(n => `<span class="tag node">${n}</span>`).join('');
+    const intentCls = t.intent === 'learn' ? 'learn' : 'intent';
+    const blocked = t.intent === 'blocked';
+    return `<tr>
+      <td class="mono">${t.time||''}</td>
+      <td class="mono">${t.user_id||''}</td>
+      <td><span class="tag ${blocked ? 'err' : intentCls}">${t.intent||'-'}</span></td>
+      <td>${nodes}${tools}</td>
+      <td class="ms ${msClass(t.elapsed_ms)}">${t.elapsed_ms} ms</td>
+      <td class="mono">${escapeHtml(t.message||'')}<br><span style="color:#6b7280">→ ${escapeHtml((t.response||'').slice(0,120))}</span>${t.error ? `<br><span style="color:#e5484d">⚠ ${escapeHtml(t.error)}</span>` : ''}</td>
+    </tr>`;
+  }).join('');
+}
+
+function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+async function load(){
+  const intent = document.getElementById('fIntent').value;
+  const user = document.getElementById('fUser').value.trim();
+  const q = new URLSearchParams({limit:'80'});
+  if(intent) q.set('intent', intent);
+  if(user) q.set('user_id', user);
+  try{
+    const d = await (await fetch('/api/traces?' + q)).json();
+    renderCards(d.stats || {});
+    renderBars(document.getElementById('barsIntent'), (d.stats||{}).intents);
+    renderBars(document.getElementById('barsStop'), (d.stats||{}).loop_stops);
+    renderBars(document.getElementById('barsTool'), (d.stats||{}).tools);
+    renderRows(d.items || []);
+    document.getElementById('cnt').textContent = `共 ${(d.items||[]).length} 条`;
+    const m = (d.metrics||{}).conversation;
+    if(m) document.getElementById('cnt').textContent += ` · 压缩 ${(m.counts||{}).compressed||0} / 释放 ${(m.counts||{}).released||0}`;
+  }catch(e){
+    document.getElementById('rows').innerHTML = `<tr><td colspan="6" class="empty">加载失败：${e}</td></tr>`;
+  }
+}
+
+function fillIntents(){
+  fetch('/api/traces?limit=1').then(r => r.json()).then(d => {
+    const set = new Set(Object.keys((d.stats||{}).intents || {}));
+    ['quiz','submit','grade','habit','learn','chat','blocked'].forEach(x => set.add(x));
+    const sel = document.getElementById('fIntent');
+    [...set].sort().forEach(v => {
+      const o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o);
+    });
+  }).catch(() => {});
+}
+
+document.getElementById('btnLive').onclick = function(){
+  if(TIMER){ clearInterval(TIMER); TIMER = null; this.textContent = '开启刷新';
+             document.getElementById('live').textContent = '已暂停'; }
+  else { TIMER = setInterval(load, 5000); this.textContent = '暂停刷新';
+         document.getElementById('live').textContent = '自动刷新'; }
+};
+document.getElementById('fIntent').onchange = load;
+document.getElementById('fUser').oninput = () => { clearTimeout(window._t); window._t = setTimeout(load, 400); };
+
+fillIntents();
+load();
+TIMER = setInterval(load, 5000);
+</script>
+</body>
+</html>

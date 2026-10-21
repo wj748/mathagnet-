@@ -150,11 +150,13 @@ class SessionRequest(BaseModel):
 @app.post("/api/session")
 def create_session_token(req: SessionRequest):
     """用 user_id 换取签名 token；此后接口身份以 token 为准（客户端自报 user_id 不再被信任）。"""
-    from .auth import issue_token
+    from .auth import issue_token, valid_user_id
 
     user_id = (req.user_id or "u_default").strip()[:64]
-    if not user_id:
-        raise HTTPException(status_code=400, detail="user_id 不能为空")
+    if not valid_user_id(user_id):
+        raise HTTPException(
+            status_code=400,
+            detail="user_id 含非法字符（仅允许字母/数字/下划线/连字符/中文，1-64 位）")
     return {"user_id": user_id, "token": issue_token(user_id)}
 
 
@@ -255,6 +257,8 @@ _SAFE_NAME = _re.compile(r"[^0-9A-Za-z._\-\u4e00-\u9fa5]+")
 async def upload(user_id: str = "u_default", token: Optional[str] = None,
                  file: UploadFile = File(...)):
     """上传作业图片/PDF，自动 OCR 并批改。"""
+    import anyio
+
     from .auth import resolve_user
 
     uid, authed = resolve_user(token, user_id)
@@ -268,13 +272,15 @@ async def upload(user_id: str = "u_default", token: Optional[str] = None,
     content = await file.read(MAX_UPLOAD_BYTES + 1)
     if len(content) > MAX_UPLOAD_BYTES:
         raise HTTPException(status_code=413, detail=f"文件超过 {MAX_UPLOAD_MB:g}MB 上限")
-    dest = UPLOAD_DIR / f"{uid[:24]}_{int(time.time()*1000)}_{secrets.token_hex(4)}_{safe_name}"
-    dest.write_bytes(content)
-    # 并发准入（async 端点里可能排队/等待的操作都要进线程池，不能阻塞事件循环）
-    import anyio
-
-    _admit(uid)
+    # 并发准入必须在写盘前完成，且放进线程池：_admit 内的全局熔断可能排队等待，
+    # 在 async 端点直接调用会阻塞 asyncio 事件循环（拖垮健康检查等所有请求）。
+    await anyio.to_thread.run_sync(_admit, uid)
+    # uid 净化后再拼文件名：require_token=false 时 uid 来自客户端自报，
+    # 含 "/" ".." 会逃逸 UPLOAD_DIR（路径遍历写文件），必须挡死。
+    safe_uid = _SAFE_NAME.sub("_", uid)[:24] or "u"
+    dest = UPLOAD_DIR / f"{safe_uid}_{int(time.time()*1000)}_{secrets.token_hex(4)}_{safe_name}"
     try:
+        dest.write_bytes(content)
         agent = _agent(uid)
         try:
             out = await anyio.to_thread.run_sync(
@@ -397,7 +403,13 @@ def main() -> None:
     # 容器/公网部署必须绑 0.0.0.0（Dockerfile 用）；本机默认 127.0.0.1
     host = os.environ.get("HOST", "127.0.0.1")
     port = int(os.environ.get("PORT", "8787"))
-    uvicorn.run(app, host=host, port=port, log_level="info")
+    # 公网 HTTPS：设置 SSL_CERTFILE/SSL_KEYFILE 即以 TLS 启动（通常建议由反向代理终结 TLS，此项为直连兜底）
+    ssl_kwargs = {}
+    _cert = os.environ.get("SSL_CERTFILE", "")
+    _key = os.environ.get("SSL_KEYFILE", "")
+    if _cert and _key:
+        ssl_kwargs = {"ssl_certfile": _cert, "ssl_keyfile": _key}
+    uvicorn.run(app, host=host, port=port, log_level="info", **ssl_kwargs)
 
 
 if __name__ == "__main__":

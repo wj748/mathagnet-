@@ -63,7 +63,11 @@ class LLMProvider:
             resp = self.client.invoke(lc_msgs, **kwargs)
             return (resp.content or "").strip() or None
         except Exception as e:  # 网络/鉴权失败 → 本轮降级，不影响主流程
-            print(f"[llm] 调用失败，本轮降级为规则模式：{type(e).__name__}: {e}")
+            # 脱敏：异常文本可能含 base_url / 端点 / key 片段，不原样进日志
+            detail = re.sub(r"https?://\S+", "<url>", str(e))
+            detail = re.sub(r"(?i)(api[-_]?key|token|secret|authorization)\s*[:=]\s*\S+",
+                            r"\1=***", detail)[:120]
+            print(f"[llm] 调用失败，本轮降级为规则模式：{type(e).__name__}: {detail}")
             return None
 
     # ------------------------------------------------------------------ JSON
@@ -127,7 +131,9 @@ def build_provider(force: str | None = None) -> LLMProvider:
             timeout=int(cfg.get("llm.timeout", 60)),
         )
         _provider = LLMProvider(client=client, model=model, enabled=True)
-        print(f"[llm] 已接入 {model} @ {base_url}")
+        from urllib.parse import urlparse
+        _host = urlparse(base_url).netloc or base_url   # 只暴露 host，不打印完整端点/路径
+        print(f"[llm] 已接入 {model} @ {_host}")
     else:
         print("[llm] 未检测到 API Key，进入离线规则模式（全流程可用，文案为模板生成）")
         _provider = LLMProvider(client=None, enabled=False)

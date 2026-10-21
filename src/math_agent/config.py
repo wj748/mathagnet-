@@ -90,13 +90,31 @@ def load_config(path: str | Path | None = None, reload: bool = False) -> Config:
     if cfg_path.exists():
         data = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
     # 环境变量覆盖（MATH_AGENT_LLM_MODEL 之类）
+    def _coerce(val: str) -> Any:
+        # 环境变量都是字符串；布尔/数字配置若用字符串覆盖会踩
+        # bool("false")==True 这类陷阱（如 require_token），这里做类型推断。
+        low = val.strip().lower()
+        if low in ("true", "yes", "on"):
+            return True
+        if low in ("false", "no", "off"):
+            return False
+        try:
+            return int(val)
+        except (TypeError, ValueError):
+            pass
+        try:
+            return float(val)
+        except (TypeError, ValueError):
+            pass
+        return val
+
     for k, v in os.environ.items():
         if k.startswith("MATH_AGENT_"):
             parts = [p.lower() for p in k[len("MATH_AGENT_"):].split("__")]
             node = data
             for p in parts[:-1]:
                 node = node.setdefault(p, {})
-            node[parts[-1]] = v
+            node[parts[-1]] = _coerce(v)
     _cached = Config(data)
     return _cached
 

@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="QUI9ZvjNQuMOCngga8mGrn">
+<head data-page-node-id="76oryKXtRv07Y3TeeZghkq">
+<meta charset="UTF-8" data-page-node-id="7yW4FHaXJ2cKfR4X6duCOG" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="0qY4qJM17LcMu8mT987AAW" />
+<meta name="theme-color" content="#3b6ef5" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#0e1322" media="(prefers-color-scheme: dark)" />
+<title>初中数学辅导 Agent</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%90%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/static/katex/katex.min.css" data-page-node-id="dIRJhJe9SM0pDlCWYUJwqE" />
+<script defer src="/static/katex/katex.min.js"></script>
+<script defer src="/static/katex/contrib/auto-render.min.js"></script>
+<style>
+  :root{
+    --bg:#f3f5fc; --panel:#ffffff; --panel-2:#f8faff; --border:#e4e9f5;
+    --text:#1c2333; --muted:#667089; --brand:#3b6ef5; --brand-2:#7c5cf0; --brand-soft:#e9efff;
+    --ok:#12a150; --err:#e5484d; --chat-bg:#eef1f9;
+    --glass:rgba(255,255,255,.78); --soft:#eceff7; --field:#f8faff;
+    --ai-bubble:#ffffff; --scroll:#c9d2e8; --scroll-h:#aab6d4;
+    --shadow-s:0 1px 2px rgba(30,41,72,.05),0 3px 10px rgba(30,41,72,.06);
+    --shadow-m:0 4px 16px rgba(30,41,72,.09),0 1px 3px rgba(30,41,72,.05);
+    --shadow-l:0 12px 36px rgba(30,41,72,.14);
+    --glow:0 4px 14px rgba(59,110,245,.35);
+    --radius:18px;
+  }
+  body.learn{ --brand:#7c5cf0; --brand-2:#a56bff; --brand-soft:#f1ebff;
+              --glow:0 4px 14px rgba(124,92,240,.35); }
+  /* 自动深色模式：跟随系统，全部经 CSS 变量切换 */
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0e1322; --panel:#161d30; --panel-2:#1a2238; --border:#29334f;
+      --text:#e7ecf9; --muted:#93a0bf; --brand:#5d8bff; --brand-2:#9b7bff;
+      --brand-soft:rgba(93,139,255,.16); --ok:#2fd575; --err:#ff6b70; --chat-bg:#10162a;
+      --glass:rgba(22,29,48,.72); --soft:#232d48; --field:#141b2f;
+      --ai-bubble:#1a2238; --scroll:#33405f; --scroll-h:#46557c;
+      --shadow-s:0 1px 2px rgba(0,0,0,.35),0 3px 10px rgba(0,0,0,.3);
+      --shadow-m:0 4px 16px rgba(0,0,0,.45),0 1px 3px rgba(0,0,0,.3);
+      --shadow-l:0 12px 36px rgba(0,0,0,.55);
+      --glow:0 4px 16px rgba(93,139,255,.4);
+    }
+    body.learn{ --brand:#9b7bff; --brand-2:#b795ff; --brand-soft:rgba(155,123,255,.16);
+                --glow:0 4px 16px rgba(155,123,255,.4); }
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  ::selection{background:var(--brand-soft);color:var(--brand)}
+  :focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+  body{margin:0;color:var(--text);
+       font:15px/1.7 -apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+       background:
+         radial-gradient(1000px 480px at 88% -12%, rgba(124,92,240,.13), transparent 60%),
+         radial-gradient(1000px 480px at -4% -12%, rgba(59,110,245,.14), transparent 60%),
+         radial-gradient(rgba(59,110,245,.05) 1px, transparent 1.5px),
+         var(--bg);
+       background-size:auto,auto,24px 24px,auto;
+       background-attachment:fixed}
+  .wrap{max-width:1120px;margin:0 auto;padding:22px 20px 44px}
+  header{display:flex;align-items:center;gap:13px;margin-bottom:18px;
+         background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);
+         padding:14px 18px;box-shadow:var(--shadow-s);
+         backdrop-filter:blur(14px) saturate(1.5);-webkit-backdrop-filter:blur(14px) saturate(1.5);
+         animation:drop .45s ease}
+  @keyframes drop{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+  .logo{width:44px;height:44px;border-radius:13px;color:#fff;display:grid;place-items:center;
+        font-weight:700;font-size:19px;flex:none;
+        background:linear-gradient(135deg,var(--brand),var(--brand-2));
+        box-shadow:var(--glow),inset 0 1px 0 rgba(255,255,255,.35);
+        transition:transform .2s}
+  header:hover .logo{transform:rotate(-6deg) scale(1.06)}
+  h1{font-size:18px;margin:0;font-weight:800;letter-spacing:.3px;
+     background:linear-gradient(120deg,var(--brand),var(--brand-2));
+     -webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:12.5px;margin-top:1px}
+  .disclaimer{color:var(--muted);font-size:12px;text-align:center;margin-top:14px;line-height:1.6}
+  .badge{margin-left:auto;font-size:12.5px;padding:5px 13px;border-radius:999px;
+         background:var(--brand-soft);color:var(--brand);font-weight:600;
+         display:flex;align-items:center;gap:7px;white-space:nowrap;
+         border:1px solid color-mix(in srgb,var(--brand) 18%,transparent)}
+  .badge .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);
+              box-shadow:0 0 0 0 rgba(18,161,80,.5);animation:pulse 2s infinite}
+  @keyframes pulse{70%{box-shadow:0 0 0 6px rgba(18,161,80,0)}100%{box-shadow:0 0 0 0 rgba(18,161,80,0)}}
+
+  .grid{display:grid;grid-template-columns:1fr 288px;gap:18px;align-items:start}
+  @media(max-width:900px){.grid{grid-template-columns:1fr} #fab-upload{display:block}}
+
+  /* ---- 显示屏自适应：桌面端铺满视口（app-shell 布局），窄屏回落文档流 ---- */
+  @media(min-width:901px){
+    body{overflow:hidden}
+    .wrap{height:100vh;display:flex;flex-direction:column;
+          max-width:min(1560px,calc(100vw - 48px));padding:16px 24px 10px}
+    header{flex:none;margin-bottom:14px}
+    .grid{flex:1;min-height:0;align-items:stretch;
+          grid-template-columns:minmax(0,1fr) clamp(264px,23vw,320px)}
+    .grid > .card{display:flex;flex-direction:column;min-height:0}
+    #chat{flex:1;min-height:0;height:auto}
+    .side{min-height:0;overflow-y:auto;padding-right:2px;scrollbar-width:thin}
+    .side::-webkit-scrollbar{width:8px}
+    .side::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:8px}
+    .disclaimer{flex:none;margin-top:10px}
+  }
+  /* 大屏 / 4K：整体放大字号 */
+  @media(min-width:1600px){
+    body{font-size:16px}
+    h1{font-size:20px}
+    .sub{font-size:13px}
+    .msg{font-size:15.5px}
+    .logo{width:48px;height:48px;font-size:21px}
+  }
+  /* 小屏笔记本（视口高度紧张）：压缩留白，聊天区不设最小高度 */
+  @media(min-width:901px) and (max-height:780px){
+    .wrap{padding:10px 18px 6px}
+    header{margin-bottom:10px;padding:10px 16px}
+    .logo{width:38px;height:38px;font-size:17px;border-radius:11px}
+    #chat{padding:14px 16px 8px;gap:12px}
+    .disclaimer{margin-top:6px}
+  }
+
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+        overflow:hidden;box-shadow:var(--shadow-s);
+        transition:box-shadow .25s,transform .25s}
+  .side .card:hover,.side details.card:hover{box-shadow:var(--shadow-m);transform:translateY(-2px)}
+
+  /* ---- 顶部模式切换（分段控件） ---- */
+  .tabs{display:flex;align-items:center;gap:10px;padding:10px 12px;
+        border-bottom:1px solid var(--border);background:var(--panel-2)}
+  .seg{display:flex;background:var(--soft);border-radius:999px;padding:3px;gap:2px}
+  .tab{padding:7px 20px;border:0;border-radius:999px;background:transparent;color:var(--muted);
+       font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+  .tab:hover{color:var(--text)}
+  .tab.active{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;
+              box-shadow:var(--glow)}
+  .tab-hint{margin-left:auto;color:var(--muted);font-size:12px}
+
+  /* ---- 学习面板 ---- */
+  #learn-panel{padding:12px 14px;border-bottom:1px solid var(--border);background:var(--panel-2)}
+  .row{display:flex;gap:8px;align-items:center}
+  select{padding:9px 11px;border:1px solid var(--border);border-radius:10px;background:var(--field);
+         font-size:14px;color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s}
+  select:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+
+  /* ---- 聊天区 ---- */
+  #chat{height:min(60vh,600px);min-height:420px;overflow-y:auto;padding:20px 18px 10px;
+        display:flex;flex-direction:column;gap:16px;background:var(--chat-bg);
+        background-image:radial-gradient(var(--brand-soft) 1px,transparent 1.5px);
+        background-size:26px 26px}
+  #chat::-webkit-scrollbar{width:8px}
+  #chat::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:8px}
+  #chat::-webkit-scrollbar-thumb:hover{background:var(--scroll-h)}
+  .msgrow{display:flex;gap:10px;align-items:flex-end;animation:rise .3s cubic-bezier(.2,.7,.3,1.1)}
+  .msgrow.mine{flex-direction:row-reverse}
+  @keyframes rise{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+  .avatar{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;
+          font-size:13px;color:#fff;font-weight:700;margin-bottom:2px;
+          background:linear-gradient(135deg,var(--brand),var(--brand-2));
+          box-shadow:var(--glow),inset 0 1px 0 rgba(255,255,255,.35)}
+  .msgrow.mine .avatar{background:linear-gradient(135deg,#93a5c4,#7d8fb0);box-shadow:0 2px 6px rgba(93,105,140,.3)}
+  .msg{max-width:80%;padding:11px 15px;border-radius:16px;white-space:pre-wrap;
+       word-break:break-word;box-shadow:var(--shadow-s);line-height:1.75}
+  .me{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;
+      border-bottom-right-radius:5px;box-shadow:var(--glow)}
+  .ai{background:var(--ai-bubble);border:1px solid var(--border);border-bottom-left-radius:5px}
+  .typing{color:var(--muted);font-size:14px;background:var(--ai-bubble);
+          border:1px dashed color-mix(in srgb,var(--brand) 35%,var(--border))}
+  /* 可折叠卡片（调试信息 / 隐私说明）：默认收起，不打扰学生 */
+  details.card{padding:0}
+  details.card summary{padding:11px 14px;cursor:pointer;font-size:13px;font-weight:650;
+                       list-style:none;display:flex;align-items:center;gap:7px;transition:color .15s}
+  details.card summary:hover{color:var(--brand)}
+  details.card summary::-webkit-details-marker{display:none}
+  details.card summary::before{content:'▸';color:var(--muted);transition:transform .15s}
+  details.card[open] summary::before{transform:rotate(90deg)}
+  details.card .body{padding:0 14px 12px}
+  details.dbg summary{color:var(--muted);font-weight:500;font-size:12.5px}
+  /* 移动端悬浮上传按钮 */
+  #fab-upload{display:none;position:fixed;right:16px;bottom:98px;width:52px;height:52px;
+              border-radius:50%;border:0;background:linear-gradient(135deg,var(--brand),var(--brand-2));
+              color:#fff;font-size:21px;box-shadow:var(--shadow-l),var(--glow);cursor:pointer;
+              z-index:60;transition:transform .15s}
+  #fab-upload:hover{transform:scale(1.08)}
+  #fab-upload:active{transform:scale(.93)}
+  /* 等待态：动态呼吸点 + 阶段文案 —— LLM 首字可能要等 20-30s，静态"…"会让人以为卡死 */
+  .thinking{display:inline-flex;align-items:center;gap:5px;color:var(--muted);font-size:13.5px}
+  .thinking i{width:6px;height:6px;border-radius:50%;background:var(--brand);
+              animation:think 1.2s infinite ease-in-out}
+  .thinking i:nth-child(2){animation-delay:.18s}
+  .thinking i:nth-child(3){animation-delay:.36s}
+  @keyframes think{0%,80%,100%{opacity:.25;transform:scale(.75)}40%{opacity:1;transform:scale(1)}}
+  .md-h{display:block;font-weight:700;color:var(--brand);margin:8px 0 2px}
+  .msg .md-h:first-child{margin-top:0}
+  .katex{font-size:1.06em}
+  .katex-display{margin:.4em 0}
+
+  /* ---- 输入栏 ---- */
+  .bar{display:flex;gap:10px;padding:12px;border-top:1px solid var(--border);
+       background:var(--panel);align-items:center}
+  #input{flex:1;padding:12px 17px;border:1.5px solid var(--border);border-radius:999px;
+         outline:none;font-size:15px;background:var(--field);color:var(--text);
+         transition:border-color .15s, box-shadow .15s}
+  #input::placeholder{color:color-mix(in srgb,var(--muted) 75%,transparent)}
+  #input:focus{border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-soft)}
+  #send{padding:11px 24px;border:0;border-radius:999px;color:#fff;font-size:15px;font-weight:600;
+        cursor:pointer;background:linear-gradient(135deg,var(--brand),var(--brand-2));
+        box-shadow:var(--glow);transition:transform .15s, box-shadow .15s, filter .15s}
+  #send:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.08);
+        box-shadow:0 6px 18px rgba(59,110,245,.45)}
+  #send:active:not(:disabled){transform:translateY(0) scale(.97)}
+  #send:disabled{opacity:.5;cursor:not-allowed}
+
+  /* ---- 右侧栏 ---- */
+  .side{display:flex;flex-direction:column;gap:14px}
+  .side h3{margin:0;padding:12px 15px 10px;font-size:14px;display:flex;align-items:center;gap:7px}
+  .side h3::before{content:"";width:4px;height:15px;border-radius:3px;
+                   background:linear-gradient(180deg,var(--brand),var(--brand-2));
+                   box-shadow:0 0 6px rgba(59,110,245,.4)}
+  .side .body{padding:2px 15px 14px;font-size:13px;color:var(--muted)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;padding-top:2px}
+  .chip{padding:6px 12px;border:1px solid var(--border);border-radius:999px;background:var(--field);
+        cursor:pointer;font-size:13px;color:var(--text);transition:all .18s}
+  .chip:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-soft);
+              transform:translateY(-2px);box-shadow:0 3px 8px rgba(59,110,245,.15)}
+  .kv{display:flex;justify-content:space-between;align-items:center;padding:5px 0;gap:10px}
+  .kv b{color:var(--text);font-weight:650;text-align:right}
+  input[type=file]{font-size:12px;width:100%;color:var(--muted)}
+  button{padding:10px 18px;border:0;border-radius:10px;background:var(--brand);
+         color:#fff;font-size:15px;cursor:pointer}
+  button.ghost{background:var(--panel);color:var(--brand);border:1.5px solid var(--border);
+               border-radius:10px;font-weight:600;transition:all .18s}
+  button.ghost:hover{border-color:var(--brand);background:var(--brand-soft);
+                     transform:translateY(-1px);box-shadow:0 3px 8px rgba(59,110,245,.15)}
+  button:disabled{opacity:.55;cursor:not-allowed}
+  .trace{font-size:11px;color:var(--muted);font-family:ui-monospace,Menlo,Consolas,monospace;
+         word-break:break-all;max-height:130px;overflow:auto;background:var(--field);
+         border:1px solid var(--border);border-radius:9px;padding:9px 10px}
+
+  /* ---- 作答面板 + 数学符号快捷键 ---- */
+  .symbar{display:flex;flex-wrap:wrap;gap:5px;padding:9px 14px 0;
+          border-top:1px solid var(--border);background:var(--panel-2)}
+  .sym{min-width:32px;padding:3px 7px;border:1px solid var(--border);border-radius:8px;
+       background:var(--panel);cursor:pointer;font-size:14.5px;color:var(--text);line-height:1.45;
+       transition:all .15s;font-family:ui-serif,Georgia,"Times New Roman",serif}
+  .sym:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-soft);
+             transform:translateY(-2px)}
+  .sym:active{transform:translateY(0) scale(.94)}
+  .sym.small{font-size:12px}
+  #answer-panel{border-top:1px solid var(--border);background:var(--panel-2);padding:10px 14px}
+  #answer-panel + .symbar{border-top:0}
+  .ap-head{display:flex;justify-content:space-between;align-items:center;
+           font-size:13px;font-weight:650;margin-bottom:8px}
+  .ap-hint{font-size:11px;color:var(--muted);font-weight:400}
+  #answer-text{width:100%;border:1.5px solid var(--border);border-radius:10px;
+               padding:9px 12px;font-family:inherit;font-size:14px;line-height:1.6;
+               resize:vertical;min-height:64px;outline:none;background:var(--field);color:var(--text);
+               transition:border-color .15s, box-shadow .15s}
+  #answer-text:focus{border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-soft)}
+  .ap-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+  .ap-actions button{padding:7px 16px;font-size:14px;border-radius:9px}
+  #panel-toggle{padding:10px 14px;font-size:14px;white-space:nowrap}
+  #panel-toggle.on{background:linear-gradient(135deg,var(--brand),var(--brand-2));
+                   color:#fff;border-color:transparent;box-shadow:var(--glow)}
+
+  /* 动效关怀：用户偏好减少动画时全部关闭 */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body data-page-node-id="K4iXAtte87Igc2H8TOkLCh">
+<div class="wrap" data-page-node-id="RkqsJkv5SucQacN6FVaGnk">
+  <header data-page-node-id="LVlR5Uf0XR3El4AsI3FkjV">
+    <div class="logo" data-page-node-id="BgsDsHdG52xSUVzftZp7s2">数</div>
+    <div data-page-node-id="s0gRAN51fCAv14YxtrAxCf">
+      <h1 data-page-node-id="FSmgZ6In77QQxcNflGBKAn">初中数学辅导 Agent</h1>
+      <div class="sub" data-page-node-id="cK0wiEiEE3kQ4EpeQFZaNx">刷题 · 错题分析 · 作业批改 · 习惯追踪（LangGraph）</div>
+    </div>
+    <span class="badge" data-page-node-id="mb9GfpGiOz6Ku4txE3fCZ4"><span class="dot" data-page-node-id="BVHYOF2f7tKQ10uPpoCsgk"></span><span id="mode" data-page-node-id="6PlKqgIsebwmcOgP08dM5g">连接中…</span></span>
+  </header>
+
+  <div class="grid" data-page-node-id="s5MdA7nEDxjlNuDLWGihPE">
+    <div class="card" data-page-node-id="oBMGa6aPUrIrYjSAePYK79">
+      <div class="tabs" data-page-node-id="WgaxxpjCywrXFjfS3KmITU">
+        <div class="seg" data-page-node-id="liHDcjQS2QbE5wGKUfL3so">
+          <button class="tab active" id="tab-quiz" data-page-node-id="6lGLf3eh9j6DcMHpj2pJBt">刷题</button>
+          <button class="tab" id="tab-learn" data-page-node-id="piI4VHnshUX9iTIdICNYWw">学习知识点</button>
+        </div>
+        <span class="tab-hint" id="tab-hint" data-page-node-id="JPh5BLHKloCkEjTaFQCt1i">刷题模式：出题作答，交卷出报告</span>
+      </div>
+      <div id="learn-panel" style="display:none" data-page-node-id="7hCeNkQYdXrRhir1KEsnHf">
+        <div class="row" data-page-node-id="1yvXmv2zuJ9clEt245Kp2n">
+          <select id="learn-topic" style="flex:1" data-page-node-id="FYdGgjKN6PGANXF8xAdpO2">
+            <option value="函数" data-page-node-id="3mEmyTMspFTrZJqbrTvQfe">函数</option>
+            <option value="二元一次方程" data-page-node-id="14xFn6Roi9ec0EwE2Gzeh6">二元一次方程</option>
+            <option value="几何图像" data-page-node-id="whLZQdiqC2LrWj4d2QVGvM">几何图像</option>
+          </select>
+          <select id="learn-point" style="flex:2" data-page-node-id="I6y3HgINEVsn69yybgcpUV"></select>
+        </div>
+        <div class="row" style="margin-top:9px" data-page-node-id="C4rmoHvq19A5OZ4PxsNzKF">
+          <button class="ghost" id="learn-start" style="flex:1" data-page-node-id="Zt170X4DGnQgv3bmHCdumw">开始学习</button>
+          <button class="ghost" id="learn-exit" style="flex:1" data-page-node-id="XmHJqnSkizOrBNAeZRCjxv">退出学习</button>
+        </div>
+      </div>
+      <div id="chat" data-page-node-id="PTBP6n2li3XpNdBmrYWR7S"></div>
+      <div id="answer-panel" style="display:none">
+        <div class="ap-head">
+          <span>✏️ 作答面板</span>
+          <span class="ap-hint">Ctrl+Enter 提交</span>
+        </div>
+        <textarea id="answer-text" rows="3" placeholder="在此输入解答过程与最终答案，如：设速度为 x 千米/时，则 6x=3(x+4)，解得 x=2"></textarea>
+        <div class="ap-actions">
+          <button class="ghost" id="answer-clear">清空</button>
+          <button id="answer-submit">提交答案</button>
+        </div>
+      </div>
+      <div class="symbar" id="symbar"></div>
+      <div class="bar" data-page-node-id="FC53DdZWkHmaFSGVJLRVxW">
+        <button class="ghost" id="panel-toggle" title="展开/收起作答面板（含数学符号快捷键）">√ 作答</button>
+        <input id="input" type="text" placeholder="例如：我要刷函数的选择题 / 交卷 / 我的学习习惯" data-page-node-id="GfLwEZW3aCEs8vvMXTz9Wn" />
+        <button id="send" data-page-node-id="rLvijbx9AuTEqRWW6aE2ZD">发送</button>
+      </div>
+    </div>
+
+    <div class="side" data-page-node-id="QMi2KOWUJaAHkdFpJ0N1ff">
+      <div class="card" data-page-node-id="aEmscfbgfWag9oJKP4tuHD">
+        <h3 data-page-node-id="cObG2Nj2f47yli7TpBjrT1">快捷指令</h3>
+        <div class="body chips" data-page-node-id="mFVhC1GzVC8xOMyxSYFZQW">
+          <span class="chip" data-page-node-id="o0Lj2tMVJl9bHoWHgKJovU">我要刷函数的选择题</span>
+          <span class="chip" data-page-node-id="Ho07e6O2FuHbpYe3eUGat5">来5道二元一次方程填空题</span>
+          <span class="chip" data-page-node-id="eYuDen2uBxM7GM67GsgveF">几何图像应用题3道</span>
+          <span class="chip" data-page-node-id="ji9fdhgPKJ81B8L5Dg0i9b">交卷</span>
+          <span class="chip" data-page-node-id="StrpAqwS2f5iDWyCs8dktS">我的学习习惯怎么样</span>
+          <span class="chip" data-page-node-id="aDiPr4jjBQDcBGTAP9KQ19">一次函数的斜率是什么</span>
+        </div>
+      </div>
+      <div class="card" id="learn-chips-card" style="display:none" data-page-node-id="zN4NcUc1Eq5axM4GudHLGo">
+        <h3 data-page-node-id="yXNVBM52eD5hhDioylG5sp">学习中常用语</h3>
+        <div class="body chips" data-page-node-id="1ZfKL7aWvppHoZpSNZvxZW">
+          <span class="chip" data-page-node-id="y3Q9hAO8czqIGc0eQ8ltzO">继续</span>
+          <span class="chip" data-page-node-id="7yPBdjtHP2yddMtaPOD5Mz">没听懂</span>
+          <span class="chip" data-page-node-id="oXmHAlbjH4umjZ6Qi5QMGb">换个例题</span>
+          <span class="chip" data-page-node-id="ypVKxJJxLSbFduV3I1dRw8">退出学习</span>
+        </div>
+      </div>
+      <div class="card" data-page-node-id="VLZEZSNNAnfzHMtxhnIrVL">
+        <h3 data-page-node-id="UWGsoi56DThU6EBTMTfoFE">作业批改</h3>
+        <div class="body" data-page-node-id="eHCitJtXTcPQaYURYh1TFc">
+          <input type="file" id="file" accept=".png,.jpg,.jpeg,.bmp,.webp,.pdf,.txt,.md" data-page-node-id="GXaDrXEPVhygszz3D1yehz" />
+          <button class="ghost" id="upload" style="margin-top:10px;width:100%" data-page-node-id="5xjS2cpRwG2uAVV6tvMo1P">上传并批改</button>
+        </div>
+      </div>
+      <div class="card" data-page-node-id="GlJ95Y1GX26OxaEy7YAo2D">
+        <h3 data-page-node-id="SEBQOnVkCCDA6FC8SqVH4k">我的学习数据</h3>
+        <div class="body" id="stats" data-page-node-id="Pp6pClU05jydir8TJUV9W5">加载中…</div>
+      </div>
+      <!-- 调试信息默认折叠：Trace/向量后端这类术语对初中生是噪音，开发者可展开 -->
+      <details class="card dbg" id="dbg-card" data-page-node-id="6mRFWzKSqJMVWZHB5WjOtT">
+        <summary data-page-node-id="6XHxJhz6qqr2dq2MBvgLvi">解题过程（调试信息）</summary>
+        <div class="body trace" id="trace" data-page-node-id="8GLQJzsOEBn7s5mvZizFwW">—</div>
+      </details>
+      <details class="card dbg">
+        <summary>家长须知 / 隐私说明</summary>
+        <div class="body" style="font-size:12.5px;line-height:1.7;color:var(--muted)">
+          本工具是学习辅导助手，不会索要你的真实姓名、学校、住址、电话。<br>
+          · 对话内容会自动抹掉手机号、身份证等个人信息后再保存；<br>
+          · 仅用于讲解数学题，任何不适内容都会被拦截；<br>
+          · 学习记录只属于你自己的账号，可在下方「重置我的数据」清空。<br>
+          <button class="ghost" id="btn-reset" style="margin-top:8px;width:100%">重置我的学习数据</button>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <footer class="disclaimer">⚠️ 本页面生成内容均为AI生成，仅供参考，学习疑难请以老师讲解为准</footer>
+</div>
+
+<!-- 移动端悬浮上传：窄屏时右侧栏被挤到下方，拍照批改入口会被埋住 -->
+<button id="fab-upload" title="拍照上传作业" aria-label="拍照上传作业">📷</button>
+
+<script>
+/* 用户身份：持久化到 localStorage —— 刷新/关标签页后仍是同一个人，
+   进行中的刷题与学习进度、长期记忆才能接得上（此前每次刷新都是新身份，进度全丢） */
+const USER = (() => {
+  try{
+    let u = localStorage.getItem('ma_user_id');
+    if(!u){ u = 'u_web_' + Math.floor(Math.random()*100000); localStorage.setItem('ma_user_id', u); }
+    return u;
+  }catch(e){ return 'u_web_' + Math.floor(Math.random()*100000); }   // 隐私模式下降级
+})();
+let TOKEN = '';                       // 服务端签名的身份 token，user_id 不再自报生效
+let MODE = '';                        // '' 刷题/答疑 | 'learn' 学习知识点
+/* 会话握手挂成 Promise：loadStats 等它完成再拉统计，避免 token 未到就 401 */
+const sessionReady = (async () => {
+  try{
+    const r = await fetch('/api/session', {method:'POST',
+      headers:{'Content-Type':'application/json'}, body:JSON.stringify({user_id:USER})});
+    if(r.ok) TOKEN = (await r.json()).token || '';
+  }catch(e){ /* 离线时静默，服务端按旧逻辑兜底 */ }
+})();
+const chat = document.getElementById('chat');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('send');
+const traceEl = document.getElementById('trace');
+
+/* ================= 数学公式渲染 =================
+   题库/回复多为纯文本记法：x^2、√(7)-1、(a+b)/(2)、△ABC∽△DEF。
+   管线：切分数学片段 → texify 转 LaTeX → \( \) 包裹 → KaTeX 渲染。
+   若原文已含 LaTeX（$...$ / \(..\) / \frac 等）则直接交给 auto-render。 */
+const UNI_MAP = {
+  '∠':'\\angle ','△':'\\triangle ','∽':'\\sim ','∼':'\\sim ','≌':'\\cong ','≅':'\\cong ',
+  '≤':'\\le ','≥':'\\ge ','≠':'\\ne ','≈':'\\approx ','±':'\\pm ','×':'\\times ','÷':'\\div ',
+  '∵':'\\because ','∴':'\\therefore ','∥':'\\parallel ','⊥':'\\perp ','∞':'\\infty ',
+  '∈':'\\in ','∉':'\\notin ','∪':'\\cup ','∩':'\\cap ','⊆':'\\subseteq ','⊂':'\\subset ',
+  '∅':'\\emptyset ','¬':'\\neg ','°':'^{\\circ}','′':"'",'″':"''",
+  'Δ':'\\Delta ','π':'\\pi ','α':'\\alpha ','β':'\\beta ','γ':'\\gamma ','θ':'\\theta ',
+  'λ':'\\lambda ','φ':'\\varphi ','ω':'\\omega ','μ':'\\mu ','σ':'\\sigma ',
+  '−':'-','－':'-','＋':'+','＝':'=','～':'\\sim ','⌊':'\\lfloor ','⌋':'\\rfloor '
+};
+const MATH_SYM_SET = new Set(('+-*/=^_<>|!?:;%()[]{}\u2019"√≤≥≠≈±×÷∠△∽∼≌≅∈∉∪∩⊆⊂⊥∥∞∴∵°′″⌊⌋−－＋＝～').split('').concat(Object.keys(UNI_MAP)));
+const MATH_OPS = /[+\-*/=^_<>|≤≥≠≈±×÷√∠△∽∼≌∈∪∩⊆⊥∥∞∴∵°′＋－＝]/;
+const CJK_TEST = /[\u2E80-\u9FFF\u3000-\u303F\uFF00-\uFFEF\u2160-\u217F\u2460-\u24FF\u2600-\u27BF\ue000-\uf8ff]/;
+
+function texify(s){
+  s = s.replace(/√\(([^()]*)\)/g, '\\sqrt{$1}');
+  s = s.replace(/√/g, '\\sqrt');
+  s = s.replace(/\^\(?(-?\d+)\)?/g, '^{$1}');
+  s = s.replace(/_\(?(\d+)\)?/g, '_{$1}');
+  s = s.replace(/\(([^()]*(?:\([^()]*\))*[^()]*)\)\/\(([^()]*(?:\([^()]*\))*[^()]*)\)/g,
+                '\\frac{$1}{$2}');
+  s = s.replace(/[∠△∽∼≌≅≤≥≠≈±×÷∵∴∥⊥∞∈∉∪∩⊆⊂∅¬°′″Δπαβγθλφωμσ−－＋＝～⌊⌋]/g,
+                ch => UNI_MAP[ch] || ch);
+  return s;
+}
+
+/* 把原始文本切分为 math / text 片段 */
+function segmentMath(raw){
+  const parts = []; let cur = '', curMath = null;
+  const flush = () => { if(cur.trim()) parts.push({t:curMath?'math':'text', s:cur}); cur=''; curMath=null; };
+  const isMathChar = ch => /[0-9a-zA-Z]/.test(ch) || MATH_SYM_SET.has(ch) || ch===' ';
+  for(const ch of raw){
+    if(ch === '\n'){ flush(); parts.push({t:'text', s:'\n'}); continue; }
+    const mathish = isMathChar(ch) && !CJK_TEST.test(ch);
+    if(curMath === null){ cur = ch; curMath = mathish; }
+    else if(mathish === curMath){ cur += ch; }
+    else { flush(); cur = ch; curMath = mathish; }
+  }
+  flush();
+  // 数学片段需含运算符/数学符号；纯单词（AB、LangGraph、单独数字）保持原文
+  return parts.map(p => {
+    if(p.t !== 'math') return p;
+    const ok = MATH_OPS.test(p.s) || /[∠△∽∼≌∈∉∪∩⊆⊂⊥∥∞∴∵⌊⌋]/.test(p.s);
+    return ok ? p : {t:'text', s:p.s};
+  });
+}
+
+function esc(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+const HAS_LATEX = /\\(frac|dfrac|tfrac|sqrt|angle|triangle|cdot|times|div|leq|le|geq|ge|neq|ne|pm|sim|cong|pi|Delta|alpha|beta|theta|lambda|infty|therefore|because|perp|parallel|subseteq|cup|cap|boxed)\b|\\\(|\\\[|\$\$?[^$\n]+\$\$?/;
+
+function formatAI(raw){
+  raw = raw.replace(/[＋－＝～]/g, ch => ({'＋':'+','－':'-','＝':'=','～':'~'}[ch]));
+  let html;
+  if(HAS_LATEX.test(raw)){
+    html = esc(raw);                       // 已有 LaTeX：只做轻量转义，交给 auto-render
+  }else{
+    html = segmentMath(raw).map(p =>
+      p.t === 'math' ? '<span class="mseg">\\(' + esc(texify(p.s)) + '\\)</span>'
+                     : esc(p.s)).join('');
+  }
+  html = html.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/^(#{1,4}\s*)(.+)$/gm, '<span class="md-h">$2</span>');
+  html = html.replace(/^◆\s?(.*)$/gm, '<span class="md-h">◆ $1</span>');
+  return html;
+}
+
+function renderKatex(el){
+  try{
+    if(window.renderMathInElement){
+      renderMathInElement(el, {delimiters:[
+        {left:'\\[', right:'\\]', display:true},
+        {left:'\\(', right:'\\)', display:false},
+        {left:'$$', right:'$$', display:true},
+        {left:'$', right:'$', display:false}
+      ], throwOnError:false, ignoredTags:['script','noscript','style','textarea','pre','code']});
+    }
+  }catch(e){ /* 渲染失败保留原文本 */ }
+}
+
+/* 创建一条消息（带头像），返回气泡元素 */
+function addMsg(kind){
+  const row = document.createElement('div');
+  row.className = 'msgrow' + (kind==='me' ? ' mine' : '');
+  const av = document.createElement('div');
+  av.className = 'avatar'; av.textContent = kind==='me' ? '我' : '数';
+  const b = document.createElement('div');
+  b.className = 'msg ' + kind;
+  row.appendChild(av); row.appendChild(b);
+  chat.appendChild(row);
+  chat.scrollTop = chat.scrollHeight;
+  return b;
+}
+function bubble(text, cls){                 // 用户消息/纯文本
+  const b = addMsg(cls); b.textContent = text; return b;
+}
+function bubbleAI(text){                    // AI 消息：公式渲染
+  const b = addMsg('ai');
+  b.innerHTML = formatAI(text);
+  renderKatex(b);
+  return b;
+}
+
+async function loadStats(){
+  try{
+    await sessionReady;   // 等 token 就绪，避免 stats 因鉴权 401 误报"服务未启动"
+    const r = await fetch('/api/health'); const h = await r.json();
+    // 面向初中生的措辞：避免"LLM / 离线规则模式"这类劝退的技术黑话
+    const modeEl = document.getElementById('mode');
+    modeEl.textContent = h.llm ? 'AI 老师在线' : '基础模式（离线）';
+    modeEl.title = h.llm ? '已接入大模型，可自由讲解与追问'
+                         : '未接入大模型，使用内置规则（功能完整、表达较固定）';
+    const s = await (await fetch('/api/stats?user_id='+USER+'&token='+encodeURIComponent(TOKEN))).json();
+    document.getElementById('stats').innerHTML =
+      `<div class="kv"><span>题库</span><b>${JSON.stringify(s.question_bank).replace(/[{}"]/g,'').slice(0,60)}</b></div>`+
+      `<div class="kv"><span>我的做题数</span><b>${s.user.attempts}</b></div>`+
+      `<div class="kv"><span>正确率</span><b>${s.user.accuracy}%</b></div>`+
+      `<div class="kv"><span>向量后端</span><b>${h.embedder}</b></div>`;
+  }catch(e){ document.getElementById('stats').textContent = '服务未启动'; }
+}
+
+async function send(text, mode){
+  if(!text) return;
+  bubble(text, 'me'); input.value=''; sendBtn.disabled = true;
+  const ai = addMsg('typing');
+  let gotFirst = false;
+  const think = (txt) => ai.innerHTML =
+    '<span class="thinking"><i></i><i></i><i></i> ' + txt + '</span>';
+  think('AI 老师正在思考…');
+  // 阶段提示 + 超时安抚：LLM 在线时首字常要等 20-30s，静态"…"会让人以为卡死
+  const tPhase = setTimeout(() => { if(!gotFirst) think('正在理解题目…'); }, 5000);
+  const tSlow  = setTimeout(() => { if(!gotFirst) think('这题要算一会儿，请稍候…'); }, 15000);
+  const clearThink = () => { gotFirst = true; clearTimeout(tPhase); clearTimeout(tSlow); };
+  try{
+    const m = mode !== undefined ? mode : MODE;
+    const res = await fetch('/api/chat/stream?user_id='+USER+'&token='+encodeURIComponent(TOKEN)
+      +'&mode='+encodeURIComponent(m)+'&message='+encodeURIComponent(text));
+    // 并发治理 429/503：响应体是 JSON（{detail: 文案}），不是 SSE——直接展示给用户
+    if(!res.ok){
+      let d = 'HTTP ' + res.status;
+      try{ d = (await res.json()).detail || d; }catch(_){ }
+      clearThink(); clearTimeout(tPhase); clearTimeout(tSlow);
+      ai.className='msg ai'; ai.textContent = '⏳ ' + d;
+      sendBtn.disabled = false; loadStats();
+      return;
+    }
+    const reader = res.body.getReader(); const dec = new TextDecoder();
+    let buf = '', full = '';
+    while(true){
+      const {done, value} = await reader.read();
+      if(done) break;
+      buf += dec.decode(value, {stream:true});
+      const parts = buf.split('\n\n'); buf = parts.pop();
+      for(const p of parts){
+        if(!p.startsWith('data:')) continue;
+        let ev; try{ ev = JSON.parse(p.slice(5)); }catch(_){ continue; }  // 单事件容错
+        if(ev.type==='trace'){
+          traceEl.textContent = (ev.data||[]).join(' → ');
+          if(!gotFirst){
+            const t = traceEl.textContent;
+            think(/quiz|fetch/.test(t) ? '正在出题…'
+                : /grade|check/.test(t) ? '正在批改…'
+                : /learn|teach/.test(t) ? '正在准备讲解…'
+                : /analyz|report/.test(t) ? '正在整理报告…' : '正在处理…');
+          }
+        }
+        else if(ev.type==='delta'){ clearThink(); full += ev.data; ai.className='msg ai'; ai.textContent = full; }
+        else if(ev.type==='error'){ clearThink(); full = '服务错误：'+ev.data; ai.className='msg ai'; ai.textContent = full; }
+      }
+      chat.scrollTop = chat.scrollHeight;
+    }
+    clearThink();
+    clearTimeout(tPhase); clearTimeout(tSlow);
+    if(!full){ full = '(无回复)'; ai.textContent = full; }
+    ai.innerHTML = formatAI(full); renderKatex(ai);   // 流式结束后整体渲染公式
+    // 检测到出题/要求作答 → 自动弹出行答面板
+    if(/第\s*\d+\s*题|请作答|请解答|写出.{0,6}(过程|答案)|（\s*\u3000*\s*）|\(\s*\)|填空题|应用题|选择题|解答题/.test(full)) {
+      setPanel(true);
+    }
+  }catch(e){
+    clearThink(); clearTimeout(tPhase); clearTimeout(tSlow);
+    ai.className='msg ai'; ai.textContent = '请求失败：'+e+'（检查网络后重试）';
+  }
+  sendBtn.disabled = false; loadStats();
+}
+
+sendBtn.onclick = () => send(input.value.trim());
+input.onkeydown = e => { if(e.key==='Enter') send(input.value.trim()); };
+document.querySelectorAll('.chip').forEach(c => c.onclick = () => send(c.textContent));
+
+// ---------------- 学习模式：模式切换 + 知识点选择 ----------------
+const tabQuiz = document.getElementById('tab-quiz');
+const tabLearn = document.getElementById('tab-learn');
+const learnPanel = document.getElementById('learn-panel');
+const learnChips = document.getElementById('learn-chips-card');
+const hint = document.getElementById('tab-hint');
+
+function setMode(m){
+  MODE = m;
+  const on = m === 'learn';
+  document.body.classList.toggle('learn', on);
+  tabLearn.classList.toggle('active', on);
+  tabQuiz.classList.toggle('active', !on);
+  learnPanel.style.display = on ? '' : 'none';
+  learnChips.style.display = on ? '' : 'none';
+  hint.textContent = on ? '学习模式：讲知识点 → 例题 → 小测 → 继续下一个'
+                        : '刷题模式：出题作答，交卷出报告';
+  input.placeholder = on ? '例如：继续 / 没听懂 / 换个例题 / 退出学习'
+                         : '例如：我要刷函数的选择题 / 交卷 / 我的学习习惯';
+}
+tabQuiz.onclick = () => { setMode(''); if(MODE==='') send('退出学习', 'learn'); };
+tabLearn.onclick = () => { setMode('learn'); loadCurriculum(); };
+
+const topicSel = document.getElementById('learn-topic');
+const pointSel = document.getElementById('learn-point');
+async function loadCurriculum(){
+  try{
+    const r = await fetch('/api/curriculum?topic='+encodeURIComponent(topicSel.value));
+    const j = await r.json();
+    const pts = (j.topics && j.topics[0] && j.topics[0].points) || [];
+    pointSel.innerHTML = pts.map(p => `<option value="${p.index}">${p.index+1}. ${p.name}</option>`).join('');
+  }catch(e){ /* 忽略：下拉为空也能直接对话学习 */ }
+}
+topicSel.onchange = loadCurriculum;
+document.getElementById('learn-start').onclick = () => {
+  const p = pointSel.selectedOptions[0];
+  send('学习 ' + topicSel.value + ' 的 ' + (p ? p.textContent.replace(/^\d+\.\s*/,'') : ''));
+};
+document.getElementById('learn-exit').onclick = () => { send('退出学习'); setMode(''); };
+
+const MAX_UPLOAD_MB = 10;
+const OK_UPLOAD_EXT = /\.(png|jpe?g|bmp|webp|pdf|txt|md)$/i;
+
+async function doUpload(){
+  const f = document.getElementById('file').files[0];
+  if(!f){ document.getElementById('file').click(); return; }  // 未选文件 → 直接打开选文件
+  if(!OK_UPLOAD_EXT.test(f.name)){
+    const ext = (f.name.split('.').pop() || '未知').toUpperCase();
+    bubbleAI('⚠️ 暂不支持 ' + ext + ' 格式。\n'
+      + '目前支持：PNG / JPG / BMP / WEBP / PDF / TXT。\n'
+      + '📱 如果是 iPhone 照片（默认 HEIC），请在「设置 → 相机 → 格式」里'
+      + '选择「兼容性最佳」，或先截图/转换成 JPG 再上传。');
+    return;
+  }
+  if(f.size > MAX_UPLOAD_MB*1024*1024){
+    bubbleAI('⚠️ 文件 ' + (f.size/1024/1024).toFixed(1) + 'MB 超过 '
+      + MAX_UPLOAD_MB + 'MB 上限，请先压缩图片或换一张更小的。');
+    return;
+  }
+
+  bubble('[上传文件] '+f.name, 'me');
+  const ai = addMsg('typing'); ai.textContent = '正在识别图片，请稍候…';
+  const fd = new FormData(); fd.append('file', f);
+  try{
+    const r = await fetch('/api/upload?user_id='+USER+'&token='+encodeURIComponent(TOKEN),
+                          {method:'POST', body:fd});
+    let j = {};
+    try{ j = await r.json(); }catch(_){ /* 非 JSON 响应（如错误页） */ }
+    if(!r.ok){
+      // ⚠️ 过去不检查 r.ok，失败也显示"已上传"，学生以为批改完成却什么都没有
+      const d = (j && (j.detail || j.error)) || ('HTTP ' + r.status);
+      ai.className = 'msg ai'; ai.textContent = '⚠️ 上传失败：' + d;
+      return;
+    }
+    ai.remove();
+    document.getElementById('file').value = '';   // 清空选择，防止误点按钮重复上传同一文件
+    bubbleAI(j.reply || '已上传');
+    loadStats();
+  }catch(e){
+    ai.className = 'msg ai';
+    ai.textContent = '⚠️ 上传失败：网络异常，请检查网络后重试。';
+  }
+}
+document.getElementById('upload').onclick = doUpload;
+// 移动端 FAB：窄屏时侧栏被挤到页面底部，拍照批改入口会被埋住，用悬浮按钮直达
+document.getElementById('fab-upload').onclick = () => {
+  document.getElementById('file').click();
+};
+// 选完文件自动开始上传（桌面/移动行为一致，不用再找"上传并批改"按钮）
+document.getElementById('file').onchange = () => {
+  if(document.getElementById('file').files[0]) doUpload();
+};
+
+// ---------------- 隐私：重置我的学习数据 ----------------
+document.getElementById('btn-reset').onclick = async () => {
+  if(!confirm('确定清空全部学习数据吗？\n（做题记录、正确率、进行中的刷题进度都会被删除，不可恢复）')) return;
+  try{
+    const r = await fetch('/api/reset?user_id='+USER+'&token='+encodeURIComponent(TOKEN),
+                          {method:'POST'});
+    if(!r.ok){ bubbleAI('⚠️ 重置失败：HTTP ' + r.status); return; }
+    bubbleAI('✅ 已清空你的全部学习数据，随时可以重新开始。');
+    loadStats();
+  }catch(e){
+    bubbleAI('⚠️ 重置失败：网络异常，请稍后重试。');
+  }
+};
+
+// ---------------- 作答面板 + 数学符号快捷键 ----------------
+const answerPanel = document.getElementById('answer-panel');
+const answerText  = document.getElementById('answer-text');
+const panelToggle = document.getElementById('panel-toggle');
+
+/* 符号表：[显示标签, 插入文本, 插入后光标回退位数] */
+const SYMS = [
+  ['∠','∠',0], ['△','△',0], ['∽','∽',0], ['≌','≌',0], ['⊥','⊥',0], ['∥','∥',0],
+  ['√()','√()',1], ['x²','^2',0], ['x³','^3',0], ['x_n','_n',0],
+  ['°','°',0], ['′','′',0], ['≤','≤',0], ['≥','≥',0], ['≠','≠',0], ['≈','≈',0],
+  ['±','±',0], ['×','×',0], ['÷','÷',0], ['∵','∵',0], ['∴','∴',0],
+  ['π','π',0], ['Δ','Δ',0], ['a/b','()/()',2], ['（　）','（　）',2], [':',':',0],
+];
+const symbar = document.getElementById('symbar');
+symbar.innerHTML = SYMS.map((s,i) =>
+  `<button class="sym${s[0].length>2?' small':''}" data-i="${i}" title="插入 ${s[1]}">${s[0]}</button>`).join('');
+symbar.querySelectorAll('.sym').forEach(b => b.onclick = () => {
+  const [label, text, back] = SYMS[+b.dataset.i];
+  const target = answerPanel.style.display !== 'none' ? answerText : input;
+  insertAtCursor(target, text, back);
+  target.focus();
+});
+
+function insertAtCursor(el, text, back){
+  const s = el.selectionStart ?? el.value.length, e = el.selectionEnd ?? el.value.length;
+  el.value = el.value.slice(0, s) + text + el.value.slice(e);
+  const pos = s + text.length - back;
+  el.setSelectionRange(pos, pos);
+}
+
+function setPanel(open){
+  answerPanel.style.display = open ? '' : 'none';
+  panelToggle.classList.toggle('on', open);
+  if(open) answerText.focus();
+}
+panelToggle.onclick = () => setPanel(answerPanel.style.display === 'none');
+
+function submitAnswer(){
+  const v = answerText.value.trim();
+  if(!v){ answerText.focus(); return; }
+  answerText.value = '';
+  send(v);
+}
+document.getElementById('answer-submit').onclick = submitAnswer;
+document.getElementById('answer-clear').onclick = () => { answerText.value=''; answerText.focus(); };
+answerText.onkeydown = e => { if(e.key==='Enter' && (e.ctrlKey||e.metaKey)) submitAnswer(); };
+
+const welcome = '你好！我是初中数学辅导 Agent 📐\n可以带你刷题、批改作业、分析错题、追踪学习习惯。\n试试右侧快捷指令，或直接说「我要刷函数的选择题」。';
+const wb = addMsg('ai'); wb.innerHTML = formatAI(welcome); renderKatex(wb);
+loadStats();
+</script>
+</body>
+</html>

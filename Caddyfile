@@ -1,0 +1,25 @@
+# Caddy 反向代理配置 —— 自动签发/续期 Let's Encrypt 证书
+# 用法：把 math-agent.example.com 换成你的真实域名，然后：
+#   docker compose --profile full --profile public up -d
+# 本地试跑（自签证书模式）：DOMAIN=localhost 执行同样命令即可（Caddy 对 localhost 自动用内部 CA）
+{
+    email admin@example.com        # 换成你的邮箱（Let's Encrypt 通知用）
+}
+
+math-agent.example.com {           # ← 换成你的真实域名
+    reverse_proxy app:8787
+
+    # 安全响应头
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options    "nosniff"
+        X-Frame-Options           "DENY"
+        Referrer-Policy           "strict-origin-when-cross-origin"
+        -Server
+    }
+
+    # 上传体大小与后端 max_upload_mb 对齐
+    request_body {
+        max_size 11MB
+    }
+}

@@ -50,8 +50,20 @@ class UserGate:
 
     def acquire(self, user_id: str) -> Tuple[bool, str]:
         qps = int(cfg.get("concurrency.per_user_qps", 3))
+        max_users = int(cfg.get("concurrency.gate_max_users", 5000))
         now = time.monotonic()
         with self._guard:
+            # 防御内存无限增长：唯一 user_id 只增不减会被随机 user_id 打爆，
+            # 超限时淘汰"未持锁且请求窗口已过期"的空闲用户（不影响活跃用户）。
+            if len(self._hits) > max_users:
+                for k in list(self._hits.keys()):
+                    if len(self._hits) <= max_users:
+                        break
+                    lk = self._locks.get(k)
+                    hh = self._hits.get(k)
+                    if (lk is None or not lk.locked()) and (not hh or now - hh[-1] > 5.0):
+                        self._hits.pop(k, None)
+                        self._locks.pop(k, None)
             # QPS 滑动窗口（1 秒），对所有到达请求计数（含被拒的）
             hits = self._hits.setdefault(user_id, deque())
             while hits and now - hits[0] > 1.0:

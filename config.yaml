@@ -40,8 +40,8 @@ redis:
   session_ttl: 86400
 
 security:
-  require_token: false     # 生产/公网部署务必改为 true：无签名 token 的请求一律 401
-  cors_origins: ["http://127.0.0.1:8787", "http://localhost:8787"]
+  require_token: true      # 无签名 token 的请求一律 401（.env 的 SECURITY__REQUIRE_TOKEN 双保险；本地前端已走 /api/session 握手，不受影响）
+  cors_origins: ["http://127.0.0.1:8787", "http://localhost:8787"]  # 公网部署：替换为 https://你的域名 并保留本地项
   max_upload_mb: 10        # 上传文件大小上限
   agent_ttl: 1800          # 空闲 Agent 淘汰秒数（compressor 已持久化，可安全重建）
   agent_max: 100           # Agent 池容量上限（LRU 驱逐）

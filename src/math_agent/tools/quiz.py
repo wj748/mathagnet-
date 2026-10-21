@@ -59,7 +59,26 @@ def normalize(text: str) -> str:
     return t.lower()
 
 
+# SymPy 安全求值白名单：sympify 对不可信字符串等同于 eval（可被诱导 RCE）。
+# 判等入口（用户作答 / OCR 文本）与计算入口（calculator）都必须先过此校验。
+_EXPR_CHARS = re.compile(r"^[0-9a-zA-Z\s+\-*/^().,=<>!%:\[\]{}]+$")
+_EXPR_BLOCK = re.compile(
+    r"__|import|lambda|class|\bdef\b|mro|subclass|globals|locals|builtins|"
+    r"getattr|setattr|\bopen\b|\beval\b|\bexec\b|compile|\bvars\b|\bos\.|\bsys\.|"
+    r"\.pop|\.read|\.write|\.system", re.I)
+
+
+def _safe_math_expr(s: str) -> bool:
+    """仅允许数学表达式字符集，且不含属性访问 / 导入 / 内省等危险片段。"""
+    s = s or ""
+    if not s or len(s) > 500:
+        return False
+    return bool(_EXPR_CHARS.match(s)) and not _EXPR_BLOCK.search(s)
+
+
 def _sympy_equal(a: str, b: str) -> bool:
+    if not (_safe_math_expr(a) and _safe_math_expr(b)):
+        return False
     try:
         import sympy
         ea = sympy.sympify(a)

@@ -42,5 +42,25 @@ services:
       - ./config.yaml:/app/config.yaml:ro
     restart: unless-stopped
 
+  # 公网 HTTPS 入口（清单方式 A，推荐）：Caddy 自动签发/续期 Let's Encrypt 证书
+  # 启用：docker compose --profile full --profile public up -d
+  # 前置：把 Caddyfile 里的 math-agent.example.com 换成真实域名（并确保 DNS 已解析到本机 80/443）
+  caddy:
+    image: caddy:2
+    container_name: math-agent-caddy
+    profiles: ["public"]
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data         # 证书持久化
+      - caddy-config:/config
+    depends_on:
+      - app
+    restart: unless-stopped
+
 volumes:
   redis-data:
+  caddy-data:
+  caddy-config:
