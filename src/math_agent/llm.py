@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import threading
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from .config import cfg
@@ -94,13 +95,21 @@ class LLMProvider:
 # 工厂
 # --------------------------------------------------------------------------
 _provider: LLMProvider | None = None
+_provider_lock = threading.Lock()   # 单例双检锁：warmup 线程与并发请求同时首调时防止重复建客户端
 
 
 def build_provider(force: str | None = None) -> LLMProvider:
     global _provider
     if _provider is not None and force is None:
         return _provider
+    with _provider_lock:
+        if _provider is not None and force is None:
+            return _provider
+        return _build_provider_locked(force)
 
+
+def _build_provider_locked(force: str | None = None) -> LLMProvider:
+    global _provider
     mode = (force or cfg.get("llm.provider", "auto") or "auto").lower()
     if mode == "mock":
         _provider = LLMProvider(client=None, enabled=False)
@@ -148,6 +157,7 @@ def get_llm(force: str | None = None) -> LLMProvider:
 # 视觉模型（Phase 5 待办②：GLM-4V 提升手写体识别）
 # --------------------------------------------------------------------------
 _vision_client = None
+_vision_lock = threading.Lock()
 
 
 def get_vision_client():
@@ -159,6 +169,14 @@ def get_vision_client():
     global _vision_client
     if _vision_client is not None:
         return _vision_client
+    with _vision_lock:
+        if _vision_client is not None:
+            return _vision_client
+        return _build_vision_client_locked()
+
+
+def _build_vision_client_locked():
+    global _vision_client
     api_key = os.getenv(cfg.get("llm.api_key_env", "GLM_API_KEY"), "").strip()
     if not api_key:
         return None

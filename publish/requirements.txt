@@ -1,0 +1,12 @@
+# 公网沙箱精简依赖：不含 transformers/torch（沙箱用 hashing 嵌入）
+langgraph>=0.2
+langchain-core>=0.3
+langchain-openai>=0.2
+pydantic>=2.0
+pyyaml>=6.0
+qdrant-client>=1.9
+sqlalchemy>=2.0
+sympy>=1.12
+fastapi>=0.110
+uvicorn[standard]>=0.27
+python-multipart>=0.0.9
