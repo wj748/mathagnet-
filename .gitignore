@@ -36,3 +36,7 @@ dist/
 .workbuddy/deploy_staging/
 .workbuddy/tmp/
 node_modules/
+
+# 发布包运行时数据（本地生成，不入库）
+publish/data/
+publish_qdrant_hashing/
